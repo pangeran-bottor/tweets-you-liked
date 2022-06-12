@@ -1,5 +1,11 @@
+from curses import raw
+from typing import List
+
 import collections
+import os
+import pandas as pd
 import pickle
+import tweepy
 
 
 def fields_to_str(target_fields):
@@ -22,11 +28,17 @@ user_target_fields = [
 TweetYouLiked = collections.namedtuple("TweetYouLiked", ["tweet", "user"])
 
 
-def extract_liked_tweets(client, user_id):
+def get_client():
+    TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
+    client = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
+    return client
+
+
+def extract_liked_tweets(client, twitter_id):
     liked_tweets = []
 
     resp = client.get_liked_tweets(
-        user_id,
+        twitter_id,
         tweet_fields=fields_to_str(tweet_target_fields),
         user_fields=fields_to_str(user_target_fields),
         expansions="author_id",
@@ -44,7 +56,7 @@ def extract_liked_tweets(client, user_id):
         next_token = resp.meta.get("next_token", "")
         if next_token != "":
             resp = client.get_liked_tweets(
-                user_id,
+                twitter_id,
                 tweet_fields=fields_to_str(tweet_target_fields),
                 user_fields=fields_to_str(user_target_fields),
                 expansions="author_id",
@@ -64,3 +76,19 @@ def load_liked_tweets(filename):
     with open(filename, "rb") as f:
         liked_tweets = pickle.load(f)
     return liked_tweets
+
+
+def liked_tweets_to_dataframe(liked_tweets: List[TweetYouLiked]) -> pd.DataFrame:
+    raw_data = []
+    for liked_tweet in liked_tweets:
+        data = dict(
+            tweet_id=liked_tweet.tweet["id"],
+            text=liked_tweet.tweet["text"],
+            author_id=liked_tweet.user["id"],
+            author_username=liked_tweet.user["username"],
+        )
+
+        raw_data.append(data)
+
+    df = pd.DataFrame.from_records(raw_data)
+    return df
