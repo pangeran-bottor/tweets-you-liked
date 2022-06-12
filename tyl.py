@@ -1,4 +1,3 @@
-from curses import raw
 from typing import List
 
 import collections
@@ -32,6 +31,12 @@ def get_client():
     TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
     client = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
     return client
+
+
+def get_twitter_id_by_username(client: tweepy.Client, username: str):
+    resp = client.get_user(username=username)
+    twitter_id = resp.data.id
+    return twitter_id
 
 
 def extract_liked_tweets(client, twitter_id):
