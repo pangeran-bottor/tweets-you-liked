@@ -49,7 +49,11 @@ def extract_liked_tweets(client, twitter_id):
         expansions="author_id",
     )
 
-    while resp.data:
+    page_limit = 1
+
+    while resp.data and page_limit <= 3:
+        page_limit += 1
+
         author_dict = {}
         for user in resp.includes["users"]:
             author_dict[user.id] = user.data

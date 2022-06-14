@@ -55,6 +55,7 @@ extract_button = st.button(
 )
 
 if extract_button:
+    current_twitter_username = st.session_state.twitter_username
     current_df = get_current_dataframe()
     st.write(
         "Tweets You Liked: ",
@@ -63,4 +64,4 @@ if extract_button:
     st.dataframe(data=current_df, width=5000)
 
     df_xlsx = to_excel(current_df)
-    st.download_button("Download your data", df_xlsx, "TweetsYouLiked.xlsx")
+    st.download_button("Download your data", df_xlsx, f"TweetsYouLiked_{current_twitter_username}.xlsx")
