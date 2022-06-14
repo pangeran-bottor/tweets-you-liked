@@ -1,3 +1,4 @@
+from io import BytesIO
 from tyl import *
 import streamlit as st
 
@@ -22,6 +23,25 @@ def extract_button_callback():
     ] = extracted_liked_tweets_df
 
 
+def get_current_dataframe():
+    current_twitter_username = st.session_state.twitter_username
+    df = st.session_state.liked_tweets_map.get(current_twitter_username, pd.DataFrame())
+    return df
+
+
+def to_excel(df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+    format1 = workbook.add_format({'num_format': '0.00'}) 
+    worksheet.set_column('A:A', None, format1)  
+    writer.save()
+    processed_data = output.getvalue()
+    return processed_data
+
+
 client = get_client()
 liked_tweets = []
 
@@ -35,11 +55,15 @@ extract_button = st.button(
 )
 
 if extract_button:
+    current_df = get_current_dataframe()
     st.write(
         "Tweets You Liked: ",
-        len(st.session_state.liked_tweets_map.get(st.session_state.twitter_username, [])),
+        len(current_df),
     )
     st.dataframe(
-        data=st.session_state.liked_tweets_map.get(st.session_state.twitter_username, []),
+        data=current_df,
         width=5000
     )
+
+    df_xlsx  = to_excel(current_df)
+    st.download_button("Download your data", df_xlsx, "TweetsYouLiked.xlsx")
