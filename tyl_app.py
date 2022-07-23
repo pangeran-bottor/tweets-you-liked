@@ -46,6 +46,9 @@ liked_tweets = []
 
 st.title("Tweets You Liked")
 
+# TODO: set query params to session state
+# st.write(st.experimental_get_query_params())
+
 
 twitter_username_text_input = st.text_input(
     label="Insert Twitter Username", key="twitter_username"
