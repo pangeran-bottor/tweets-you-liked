@@ -9,7 +9,6 @@ if "liked_tweets_map" not in st.session_state:
 
 
 def extract_button_callback():
-    # TODO: validate inputted twitter id
     current_twitter_username = st.session_state.twitter_username
     twitter_id = get_twitter_id_by_username(client, current_twitter_username)
 
