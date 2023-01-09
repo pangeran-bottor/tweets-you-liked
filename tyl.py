@@ -1,9 +1,9 @@
-from typing import List
-
 import collections
 import os
-import pandas as pd
 import pickle
+from typing import List
+
+import pandas as pd
 import tweepy
 
 
